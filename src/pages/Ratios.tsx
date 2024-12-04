@@ -1,71 +1,84 @@
-import { Input } from '../components/Input'
-import { Layout } from '../components/Layout'
-
-import { useForm } from 'react-hook-form'
+import { Input } from '@/components/Input'
+import { Layout } from '@/components/Layout'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
 export const Ratios = () => {
   const schema = yup.object().shape({
-    cashbackPercentage: yup.string().required(),
-    maxCashback: yup.string().required(),
-    result: yup.string(),
+    value1: yup.mixed(),
+    value2: yup.mixed(),
+    value3: yup.mixed(),
+    value4: yup.mixed(),
   })
-  const {
-    register,
-    formState: { errors },
-    reset,
-    getValues,
-    setValue,
-    trigger,
-  } = useForm({
+
+  const [error, setError] = useState('')
+
+  const { register, reset, setValue, getValues } = useForm({
     resolver: yupResolver(schema),
   })
 
   const onReset = () => {
     reset({
-      cashbackPercentage: '',
-      maxCashback: '',
+      value1: '',
+      value2: '',
+      value3: '',
+      value4: '',
     })
+    setError('')
   }
 
   const onSubmit = () => {
-    trigger()
-    const { cashbackPercentage, maxCashback } = getValues()
-    const tempResult = cashbackPercentage / 100
-    const tempResult2 = maxCashback / tempResult
-    setValue('result', 'Rp' + ' ' + tempResult2)
+    const { value1, value2, value3, value4 } = getValues()
+    const values = [value1, value2, value3, value4]
+    const emptyField = values.filter(
+      (value) => value === undefined || isNaN(value) || value === ''
+    ).length
+    if (emptyField > 1) {
+      setError('Please fill out at least 3 fields')
+      return
+    }
+    if (!value1) {
+      setValue('value1', (value3 * value2) / value4)
+    } else if (!value2) {
+      setValue('value2', (value1 * value4) / value3)
+    } else if (!value3) {
+      setValue('value3', (value1 * value4) / value2)
+    } else if (!value4) {
+      setValue('value4', (value3 * value2) / value1)
+    }
+    setError('')
   }
 
   return (
     <Layout
       backNavigation='/'
       icon='➗'
+      title='Ratios'
     >
       <div className='relative mt-8'>
-        <Input
-          name='convert'
-          label='Cashback percentage'
-          onBlur={() => {}}
-          errorMessage={errors?.cashbackPercentage?.message}
-          {...register('cashbackPercentage')}
-        />
-        <Input
-          name='maxCashback'
-          label='Maximum cashback'
-          onBlur={() => {}}
-          errorMessage={errors?.maxCashback?.message}
-          {...register('maxCashback')}
-        />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Result
+        <div className='flex'>
+          <Input {...register('value1')} />
+          <label className='block mb-6 mx-2 text-sm  text-gray-900 dark:text-white'>
+            :
           </label>
-          <p>{getValues('result')}</p>
+          <Input {...register('value2')} />
         </div>
+        <div className='flex'>
+          <Input {...register('value3')} />
+          <label className='block mb-2 mx-2 text-sm  text-gray-900 dark:text-white'>
+            :
+          </label>
+          <Input {...register('value4')} />
+        </div>
+        {error && (
+          <div className='mb-6 w-full'>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {error}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit}

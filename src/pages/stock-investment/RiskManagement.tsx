@@ -1,26 +1,26 @@
-import { Layout } from '../../components/Layout'
-import { Input } from '../../components/Input'
-
-import { useForm } from 'react-hook-form'
+import { Input } from '@/components/Input'
+import { Layout } from '@/components/Layout'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
 export const RiskManagement = () => {
   const schema = yup.object().shape({
-    marketPrice: yup.string().required(),
-    takeProfitPrice: yup.string().required(),
-    stopLossPrice: yup.string().required(),
-    takeProfitResult: yup.string(),
-    stopLossResult: yup.string(),
+    marketPrice: yup.mixed().required('Oh noes! field must be fill!'),
+    takeProfitPrice: yup.mixed().required('Oh noes! field must be fill!'),
+    stopLossPrice: yup.mixed().required('Oh noes! field must be fill!'),
+    takeProfitResult: yup.mixed(),
+    stopLossResult: yup.mixed(),
   })
 
   const {
     register,
-    formState: { errors },
     reset,
-    getValues,
     setValue,
+    getValues,
+    watch,
     trigger,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   })
@@ -33,68 +33,74 @@ export const RiskManagement = () => {
     })
   }
 
-  const onSubmit = () => {
-    trigger()
-    const { marketPrice, takeProfitPrice, stopLossPrice } = getValues()
-    const calcualteProfitPrice1 = takeProfitPrice - marketPrice
-    const calcualteProfitPrice2 = (calcualteProfitPrice1 * 100) / marketPrice
-    const calcualteStopLossPrice1 = marketPrice - stopLossPrice
-    const calcualteStopLossPrice2 =
-      (calcualteStopLossPrice1 * 100) / marketPrice
-    parseInt(calcualteProfitPrice2)
-    parseInt(calcualteStopLossPrice2)
-    setValue('takeProfitResult', calcualteProfitPrice2 + ' ' + '%')
-    setValue('stopLossResult', calcualteStopLossPrice2 + ' ' + '%')
+  const onSubmit = async () => {
+    const isValid = await trigger()
+    if (isValid) {
+      const { marketPrice, takeProfitPrice, stopLossPrice } = getValues()
+      const calcualteProfitPrice1 =
+        (takeProfitPrice as number) - (marketPrice as number)
+      const calcualteProfitPrice2 =
+        (calcualteProfitPrice1 * 100) / (marketPrice as number)
+      const calcualteStopLossPrice1 =
+        (marketPrice as number) - (stopLossPrice as number)
+      const calcualteStopLossPrice2 =
+        (calcualteStopLossPrice1 * 100) / (marketPrice as number)
+      setValue('takeProfitResult', calcualteProfitPrice2 + ' ' + '%')
+      setValue('stopLossResult', calcualteStopLossPrice2 + ' ' + '%')
+    }
   }
 
   return (
     <Layout
       backNavigation='/stock-investment'
       icon='🛡️'
+      title='Risk management'
     >
       <div className='relative mt-8'>
         <Input
-          name='marketPrice'
           label='Price'
-          onBlur={() => {}}
           errorMessage={errors?.marketPrice?.message}
           prefix='Rp'
           {...register('marketPrice')}
         />
         <Input
-          name='takeProfitPrice'
           label='Take profit'
-          onBlur={() => {}}
           errorMessage={errors?.takeProfitPrice?.message}
           prefix='Rp'
           {...register('takeProfitPrice')}
         />
         <Input
-          name='stopLossPrice'
           label='Stop loss'
-          onBlur={() => {}}
           errorMessage={errors?.stopLossPrice?.message}
           prefix='Rp'
           {...register('stopLossPrice')}
         />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Take profit
-          </label>
-          <p>{getValues('takeProfitResult')}</p>
-        </div>
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Stop loss
-          </label>
-          <p>{getValues('stopLossResult')}</p>
-        </div>
+        {watch('takeProfitResult') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Take profit
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('takeProfitResult')}
+            </label>
+          </div>
+        )}
+        {watch('stopLossResult') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Stop loss
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('stopLossResult')}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit}

@@ -1,29 +1,30 @@
-import { useForm } from 'react-hook-form'
+import { Input } from '@/components/Input.tsx'
+import { Layout } from '@/components/Layout'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import { Layout } from '../../components/Layout'
-import { Input } from '../../components/Input'
 
 export const TpSl = () => {
   const schema = yup.object().shape({
-    value1: yup.string().required(),
-    value2: yup.string().required(),
-    value3: yup.string().required(),
-    value4: yup.string().required(),
-    value5: yup.string().required(),
-    value6: yup.string().required(),
-    result1: yup.string(),
-    result2: yup.string(),
-    result3: yup.string(),
+    value1: yup.mixed().required('Oh noes! field must be fill!'),
+    value2: yup.mixed().required('Oh noes! field must be fill!'),
+    value3: yup.mixed().required('Oh noes! field must be fill!'),
+    value4: yup.mixed().required('Oh noes! field must be fill!'),
+    value5: yup.mixed().required('Oh noes! field must be fill!'),
+    value6: yup.mixed().required('Oh noes! field must be fill!'),
+    result1: yup.mixed(),
+    result2: yup.mixed(),
+    result3: yup.mixed(),
   })
 
   const {
     register,
-    formState: { errors },
     reset,
-    trigger,
-    getValues,
     setValue,
+    getValues,
+    watch,
+    trigger,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   })
@@ -49,64 +50,69 @@ export const TpSl = () => {
     })
   }
 
-  const onSubmit1 = () => {
-    trigger(['value1', 'value2'])
-    const { value1, value2 } = getValues()
-    const int1 = parseInt(value1)
-    const int2 = parseInt(value2)
-    const tempResult1 = int1 / 100
-    const tempResult2 = tempResult1 * int2
-    const finalResult = tempResult2 + int2
-    setValue('result1', 'Rp' + ' ' + finalResult)
+  const onSubmit1 = async () => {
+    const isValid = await trigger(['value1', 'value2'])
+    if (isValid) {
+      const { value1, value2 } = getValues()
+      const tempResult1 = (value1 as number) / 100
+      const tempResult2 = tempResult1 * (value2 as number)
+      const finalResult = tempResult2 + (value2 as number)
+      setValue('result1', 'Rp' + ' ' + finalResult)
+    }
   }
 
-  const onSubmit2 = () => {
-    trigger(['value3', 'value4'])
-    const { value3, value4 } = getValues()
-    const tempResult1 = value3 / 100
-    const finalResult = tempResult1 * value4
-    setValue('result2', 'Rp' + ' ' + finalResult)
+  const onSubmit2 = async () => {
+    const isValid = await trigger(['value3', 'value4'])
+    if (isValid) {
+      const { value3, value4 } = getValues()
+      const tempResult1 = (value3 as number) / 100
+      const finalResult = tempResult1 * (value4 as number)
+      setValue('result2', 'Rp' + ' ' + finalResult)
+    }
   }
 
-  const onSubmit3 = () => {
-    trigger(['value5', 'value6'])
-    const { value5, value6 } = getValues()
-    const tempResult1 = value5 * 100
-    const finalResult = tempResult1 / value6
-    setValue('result3', finalResult + ' ' + '%')
+  const onSubmit3 = async () => {
+    const isValid = await trigger(['value5', 'value6'])
+    if (isValid) {
+      const { value5, value6 } = getValues()
+      const tempResult1 = (value5 as number) * 100
+      const finalResult = tempResult1 / (value6 as number)
+      setValue('result3', finalResult + ' ' + '%')
+    }
   }
 
   return (
     <Layout
       backNavigation='/stock-investment'
       icon='🎯'
+      title='Take profit and stop loss'
     >
       <div className='relative mt-8'>
         <Input
-          name='value1'
           label='Increase'
-          onBlur={() => {}}
           postfix='%'
           errorMessage={errors?.value1?.message}
           {...register('value1')}
         />
         <Input
-          name='value2'
           label='of'
-          onBlur={() => {}}
           prefix='Rp'
           errorMessage={errors?.value2?.message}
           {...register('value2')}
         />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Result
-          </label>
-          <p>{getValues('result1')}</p>
-        </div>
+        {watch('result1') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Result
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('result1')}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit1}
@@ -125,30 +131,30 @@ export const TpSl = () => {
       {/* SECTION 2 */}
       <div className='relative mt-8'>
         <Input
-          name='value3'
           label='What is'
-          onBlur={() => {}}
           postfix='%'
           errorMessage={errors?.value3?.message}
           {...register('value3')}
         />
         <Input
-          name='value4'
           label='of'
-          onBlur={() => {}}
           prefix='Rp'
           errorMessage={errors?.value4?.message}
           {...register('value4')}
         />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Result
-          </label>
-          <p>{getValues('result2')}</p>
-        </div>
+        {watch('result2') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Result
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('result2')}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit2}
@@ -167,29 +173,29 @@ export const TpSl = () => {
       {/* SECTION 3 */}
       <div className='relative mt-8'>
         <Input
-          name='value5'
-          onBlur={() => {}}
           prefix='Rp'
           errorMessage={errors?.value5?.message}
           {...register('value5')}
         />
         <Input
-          name='value6'
           label='is what percent of'
-          onBlur={() => {}}
           prefix='Rp'
           errorMessage={errors?.value6?.message}
           {...register('value6')}
         />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Result
-          </label>
-          <p>{getValues('result3')}</p>
-        </div>
+        {watch('result3') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Result
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('result3')}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit3}

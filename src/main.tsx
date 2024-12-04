@@ -1,134 +1,21 @@
-import React, { useLayoutEffect } from 'react'
-import ReactDOM from 'react-dom/client'
-import { App } from './App'
-import './main.css'
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useLocation,
-} from 'react-router-dom'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
 
-import Root from './routes/root'
-import { StockInvestment } from './pages/StockInvestment'
-import { MoneyManagement } from './pages/MoneyManagement'
-import { Ratios } from './pages/Ratios'
-import { CurrencyConverter } from './pages/CurrencyConverter'
+import { router } from '@/routes/root'
 
-import { Navbar } from './components/Navbar'
-import { ProfitLoss } from './pages/stock-investment/ProfitLoss'
-import { TpSl } from './pages/stock-investment/TpSl'
-import { Devidends } from './pages/stock-investment/Devidends'
-import { RiskManagement } from './pages/stock-investment/RiskManagement'
-import { RiskManagementPercentage } from './pages/stock-investment/RiskManagementPercentage'
-import { Deposit } from './pages/money-management/Deposit'
-import { Cashback } from './pages/money-management/Cashback'
+import { Footer } from '@/components/Footer'
+import { Navbar } from '@/components/Navbar'
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-  },
-  {
-    path: 'stock-investment',
-    element: <StockInvestment />,
-  },
-  {
-    path: 'stock-investment/profit-loss',
-    element: <ProfitLoss />,
-  },
-  {
-    path: 'stock-investment/tp-sl',
-    element: <TpSl />,
-  },
-  {
-    path: 'stock-investment/devidends',
-    element: <Devidends />,
-  },
-  {
-    path: 'stock-investment/risk-management',
-    element: <RiskManagement />,
-  },
-  {
-    path: 'stock-investment/risk-management-percentage',
-    element: <RiskManagementPercentage />,
-  },
-  {
-    path: 'money-management',
-    element: <MoneyManagement />,
-  },
-  {
-    path: 'money-management/deposit',
-    element: <Deposit />,
-  },
-  {
-    path: 'money-management/cashback',
-    element: <Cashback />,
-  },
-  {
-    path: 'currency-converter',
-    element: <CurrencyConverter />,
-  },
-  {
-    path: 'ratios',
-    element: <Ratios />,
-  },
-])
+import '@/main.css'
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+const root = createRoot(document.getElementById('root')!)
+root.render(
   <React.StrictMode>
-    <div className='bg-vite-bg-color text-vite-text-color h-full pb-12 scroll-smooth'>
+    <div className='pb-12 scroll-smooth'>
       <Navbar />
-      <div className='grid grid-cols-1 text-center lg:text-start lg:grid-cols-2 max-w-[1100px] flex mx-auto mt-20'>
-        <div className='mt-56 lg:mt-0'>
-          <div className='text-[50px] md:text-[56px] font-bold'>
-            <h1 id='test'>Cuan calculator</h1>
-          </div>
-          <div className='text-[35px] md:text-[45px] font-[700] mb-4 max-w-[550px] mx-auto sm:px-20 text-center md:text-start md:px-0 text-gray-100'>
-            <h1 className='leading-none '>
-              Track and Forecast Your Gains Effortlessly
-            </h1>
-          </div>
-          <div className='font-[500] text-[20px] md:text-[24px] text-gray-400 max-w-[550px] mx-auto'>
-            <h1>Quickly calculate your profit or revenue.</h1>
-          </div>
-          {/* <div className="flex pt-8 justify-center flex-wrap lg:justify-start space-x-6 gap-y-4 font-[600] text-[14px] text-white">
-          <button className="shadow-xl border border-gray-600 bg-button-color rounded-2xl p-2 px-4 w-fit">
-            Get Started
-          </button>
-          <button className="shadow-xl border border-gray-600 bg-button-color-2 rounded-2xl p-2 px-4 w-fit">
-            Why Vite?
-          </button>
-          <button className="shadow-xl border border-gray-600 bg-button-color-2 rounded-2xl p-2 px-4 w-fit">
-            View On GitHub
-          </button>
-        </div> */}
-        </div>
-        <div className='flex justify-center'>
-          <div
-            id='test2'
-            className='md:mt-10'
-          ></div>
-          <img
-            id='test3'
-            className=''
-            src='https://vitejs.dev/logo-with-shadow.png'
-            alt='Vite'
-            data-v-d43214f0=''
-          />
-        </div>
-      </div>
       <RouterProvider router={router} />
-      <hr className='mt-16 mb-12 h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10' />
-      <footer className='bg-vite-bg-color'>
-        <div className='container mx-auto text-center text-gray-400 text-sm'>
-          <div className='w-full font-bold'>
-            Released under the MIT License.
-          </div>
-          <div className='w-full font-[500] text-sm text-gray-400 pt-2'>
-            Copyright © 2024 - Benni
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   </React.StrictMode>
 )

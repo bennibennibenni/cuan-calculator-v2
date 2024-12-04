@@ -17,4 +17,3 @@ pnpm dev
 4. Install `ESLint` & `Prettier` extensions for Visual Studio Code, and enable `Format On Save` setting.
 
 5. Enjoy! ☺
-

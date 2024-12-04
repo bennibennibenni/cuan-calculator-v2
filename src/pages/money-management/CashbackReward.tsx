@@ -1,24 +1,24 @@
-import { Input } from '../../components/Input'
-import { Layout } from '../../components/Layout'
-
-import { useForm } from 'react-hook-form'
+import { Input } from '@/components/Input'
+import { Layout } from '@/components/Layout'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
-export const Cashback = () => {
+export const CashbackReward = () => {
   const schema = yup.object().shape({
-    cashbackPercentage: yup.string().required(),
-    maxCashback: yup.string().required(),
-    result: yup.string(),
+    cashbackPercentage: yup.mixed().required('Oh noes! field must be fill!'),
+    maxCashback: yup.mixed().required('Oh noes! field must be fill!'),
+    result: yup.mixed(),
   })
 
   const {
     register,
-    formState: { errors },
     reset,
-    getValues,
     setValue,
+    getValues,
+    watch,
     trigger,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   })
@@ -30,43 +30,46 @@ export const Cashback = () => {
     })
   }
 
-  const onSubmit = () => {
-    trigger()
-    const { cashbackPercentage, maxCashback } = getValues()
-    const tempResult = cashbackPercentage / 100
-    const tempResult2 = maxCashback / tempResult
-    setValue('result', 'Rp' + ' ' + tempResult2)
+  const onSubmit = async () => {
+    const isValid = await trigger()
+    if (isValid) {
+      const { cashbackPercentage, maxCashback } = getValues()
+      const tempResult = (cashbackPercentage as number) / 100
+      const tempResult2 = ((maxCashback as number) / tempResult) as number
+      setValue('result', 'Rp' + ' ' + tempResult2)
+    }
   }
 
   return (
     <Layout
       backNavigation='/money-management'
       icon='🎁'
+      title='Cashback reward'
     >
       <div className='relative mt-8'>
         <Input
-          name='cashbackPercentage'
           label='Cashback percentage'
-          onBlur={() => {}}
           errorMessage={errors?.cashbackPercentage?.message}
           {...register('cashbackPercentage')}
         />
         <Input
-          name='maxCashback'
           label='Maximum cashback'
-          onBlur={() => {}}
           errorMessage={errors?.maxCashback?.message}
           {...register('maxCashback')}
         />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Result
-          </label>
-          <p>{getValues('result')}</p>
-        </div>
+        {watch('result') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Result
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('result')}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit}

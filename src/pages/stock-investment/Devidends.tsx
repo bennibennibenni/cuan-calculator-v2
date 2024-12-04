@@ -1,25 +1,26 @@
-import { Input } from '../../components/Input'
-import { Layout } from '../../components/Layout'
-import { useForm } from 'react-hook-form'
+import { Input } from '@/components/Input'
+import { Layout } from '@/components/Layout'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
 export const Devidends = () => {
   const schema = yup.object().shape({
-    lot: yup.string().required(),
-    dps: yup.string().required(),
-    tax: yup.string().required(),
-    devidendTax: yup.string(),
-    finalDevidend: yup.string(),
+    lot: yup.mixed().required('Oh noes! field must be fill!'),
+    dps: yup.mixed().required('Oh noes! field must be fill!'),
+    tax: yup.mixed().required('Oh noes! field must be fill!'),
+    devidendTax: yup.mixed(),
+    finalDevidend: yup.mixed(),
   })
 
   const {
     register,
-    formState: { errors },
     reset,
-    getValues,
     setValue,
+    getValues,
+    watch,
     trigger,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   })
@@ -32,62 +33,69 @@ export const Devidends = () => {
     })
   }
 
-  const onSubmit = () => {
-    trigger()
-    const { lot, dps, tax } = getValues()
-    const devidendTax = (tax / 100) * (lot * 100 * dps)
-    const finalDevidend = lot * 100 * dps - tax
-    setValue('devidendTax', 'Rp' + ' ' + devidendTax)
-    setValue('finalDevidend', 'Rp' + ' ' + finalDevidend)
+  const onSubmit = async () => {
+    const isValid = await trigger()
+    if (isValid) {
+      const { lot, dps, tax } = getValues()
+      const devidendTax =
+        ((tax as number) / 100) * ((lot as number) * 100 * (dps as number))
+      const finalDevidend =
+        (lot as number) * 100 * (dps as number) - (tax as number)
+      setValue('devidendTax', 'Rp' + ' ' + devidendTax)
+      setValue('finalDevidend', 'Rp' + ' ' + finalDevidend)
+    }
   }
 
   return (
     <Layout
       backNavigation='/stock-investment'
       icon='🏦'
+      title='Devidends'
     >
       <div className='relative mt-8'>
         <Input
-          name='value1'
           label='Lot'
-          onBlur={() => {}}
           errorMessage={errors?.lot?.message}
           {...register('lot')}
         />
         <Input
-          name='dps'
           label='Devidend per share'
-          onBlur={() => {}}
           errorMessage={errors?.dps?.message}
           prefix='Rp'
           {...register('dps')}
         />
         <Input
-          name='tax'
           label='Tax'
-          onBlur={() => {}}
           errorMessage={errors?.tax?.message}
           postfix='%'
           {...register('tax')}
         />
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Tax Paid for Deviden
-          </label>
-          <p>{getValues('devidendTax')}</p>
-        </div>
-        <div className='mb-6 w-full'>
-          <label
-            htmlFor='default-input'
-            className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-          >
-            Deviden after Tax
-          </label>
-          <p>{getValues('finalDevidend')}</p>
-        </div>
+        {watch('devidendTax') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Tax Paid for Deviden
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('devidendTax')}
+            </label>
+          </div>
+        )}
+        {watch('finalDevidend') && (
+          <div className='mb-6 w-full'>
+            <label
+              htmlFor='default-input'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+            >
+              Deviden after Tax
+            </label>
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {watch('finalDevidend')}
+            </label>
+          </div>
+        )}
         <button
           type='button'
           onClick={onSubmit}

@@ -1,25 +1,24 @@
-import { Input } from '../../components/Input'
-import { Layout } from '../../components/Layout'
-
-import { useForm } from 'react-hook-form'
+import { Input } from '@/components/Input'
+import { Layout } from '@/components/Layout'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
 export const ProfitLoss = () => {
   const schema = yup.object().shape({
-    price1: yup.string().required('Oh noes! field must be fill!'),
-    price2: yup.string().required('Oh noes! field must be fill!'),
-    result: yup.string(),
+    price1: yup.mixed().required('Oh noes! field must be fill!'),
+    price2: yup.mixed().required('Oh noes! field must be fill!'),
+    result: yup.mixed(),
   })
 
   const {
     register,
-    formState: { errors },
     reset,
-    getValues,
     setValue,
-    trigger,
+    getValues,
     watch,
+    trigger,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   })
@@ -35,7 +34,8 @@ export const ProfitLoss = () => {
     const isValid = await trigger()
     if (isValid) {
       const { price1, price2 } = getValues()
-      const res = ((price2 - price1) / price1) * 100
+      const res =
+        (((price2 as number) - (price1 as number)) / (price1 as number)) * 100
       setValue('result', res + ' ' + '%')
     }
   }
@@ -48,16 +48,12 @@ export const ProfitLoss = () => {
     >
       <div className='relative mt-8'>
         <Input
-          name='price1'
           label='Price 1'
-          onBlur={() => {}}
           errorMessage={errors?.price1?.message}
           {...register('price1')}
         />
         <Input
-          name='price2'
           label='Price 2'
-          onBlur={() => {}}
           errorMessage={errors?.price2?.message}
           {...register('price2')}
         />

@@ -1,61 +1,73 @@
-import React, { useLayoutEffect } from 'react'
-
-import { Input } from '../components/Input'
-import { Layout } from '../components/Layout'
-
+import { Input } from '@/components/Input'
+import { Layout } from '@/components/Layout'
 import { useForm } from 'react-hook-form'
+
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useLayoutEffect } from 'react'
+
 import * as yup from 'yup'
+
+interface CurrencyApiResponse {
+  usd: {
+    idr: number
+  }
+}
 
 export const CurrencyConverter = () => {
   const schema = yup.object().shape({
-    data: yup.string(),
-    amount: yup.string().required(),
-    result: yup.string(),
+    amount: yup.mixed().required('Oh noes! field must be fill!'),
+    data: yup.mixed(),
+    result: yup.mixed(),
   })
 
   const {
     register,
-    formState: { errors },
-    reset,
-    getValues,
+    resetField,
     setValue,
+    getValues,
     watch,
     trigger,
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   })
 
   const onReset = () => {
-    reset({
-      amount: '',
-    })
+    resetField('amount')
+    setValue('result', '')
   }
 
-  const onSubmit = () => {
-    trigger()
-    const { data, amount } = getValues()
-    setValue('result', amount * data)
+  const onSubmit = async () => {
+    const isValid = await trigger()
+    if (isValid) {
+      const { data, amount } = getValues()
+      if (amount && data) {
+        setValue('result', ((amount as number) * data) as number)
+      }
+    }
   }
 
   const fetchMyAPI = async () => {
-    let response = await fetch(
+    const response = await fetch(
       `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json`
     )
-    response = await response.json()
-    setValue('data', response?.usd.idr)
-    console.log(response?.usd.idr, 'response')
+    const data: CurrencyApiResponse = await response.json()
+    setValue('data', data?.usd?.idr)
   }
 
   const today = new Date()
-  const options = { day: '2-digit', month: 'long', year: 'numeric' }
+  const options: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }
   const formattedDate = new Intl.DateTimeFormat('en-GB', options).format(today)
 
-  const formatToCurrency = (number) => {
+  const formatToCurrency = (number: number | undefined) => {
     return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(number)
+    }).format(number ?? 0)
   }
 
   useLayoutEffect(() => {
@@ -66,13 +78,11 @@ export const CurrencyConverter = () => {
     <Layout
       backNavigation='/'
       icon='💱'
+      title='Currency converter'
     >
       <div className='relative mt-8'>
         <Input
-          name='amount'
-          label='Amount'
-          onBlur={() => {}}
-          errorMessage={errors?.convert?.message}
+          errorMessage={errors?.amount?.message}
           postfix='USD'
           {...register('amount')}
         />
@@ -83,7 +93,11 @@ export const CurrencyConverter = () => {
           >
             1 USD = {formatToCurrency(watch('data'))} IDR - {formattedDate}
           </label>
-          <p>{formatToCurrency(getValues('result'))} IDR</p>
+          {watch('result') && (
+            <label className='block mb-2 text-sm  text-gray-900 dark:text-white'>
+              {formatToCurrency(watch('result'))} IDR
+            </label>
+          )}
         </div>
         <button
           type='button'

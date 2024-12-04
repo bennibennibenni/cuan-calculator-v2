@@ -3,8 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  height: 100%;
+}
 body {
-  font-family: 'Inter', sans-serif;
+  min-height: 100%;
 }
 
 #test {
@@ -53,12 +56,14 @@ body {
     height: 200px;
     background-image: var(--vp-home-hero-image-background-image);
     filter: var(--vp-home-hero-image-filter);
-    transform: translate(0%, -270%);
+    /* transform: translate(0%, -270%); */
+    top: 8%;
+    position: absolute;
   }
 
   #test3 {
     position: absolute;
     max-width: 250px;
-    top: 15%;
+    top: 10%;
   }
 }
